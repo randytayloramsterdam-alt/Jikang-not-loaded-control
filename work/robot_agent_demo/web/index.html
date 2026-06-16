@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Robot Ji Kang Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="panel status-panel">
+        <div>
+          <h1>Ji Kang Head</h1>
+          <p id="status">Idle</p>
+        </div>
+        <div class="controls">
+          <button id="listenBtn">Listen</button>
+          <button id="stopBtn">Stop Mic</button>
+          <button id="micCheckBtn">Mic Check</button>
+          <button id="cameraStartBtn">Start Camera</button>
+          <button id="cameraCheckBtn">Camera Check</button>
+          <button id="cameraStopBtn">Stop Camera</button>
+          <button id="blinkToggleBtn">Auto Blink</button>
+          <button id="speakerTestBtn">Speaker Test</button>
+          <button id="selfTestBtn">Self Test</button>
+          <button id="shutdownBtn" class="danger">Shutdown Robot</button>
+        </div>
+      </section>
+
+      <section class="panel status-grid" id="runtimeStatus">
+        <div>
+          <span>LLM</span>
+          <strong id="llmStatus">Checking</strong>
+        </div>
+        <div>
+          <span>TTS</span>
+          <strong id="ttsStatus">Checking</strong>
+        </div>
+        <div>
+          <span>Serial</span>
+          <strong id="serialStatus">Checking</strong>
+        </div>
+        <div>
+          <span>Voice FX</span>
+          <strong id="fxStatus">Checking</strong>
+        </div>
+        <div>
+          <span>Eye Track</span>
+          <strong id="eyeTrackStatus">off</strong>
+        </div>
+      </section>
+
+      <section class="panel port-panel" id="portPanel">
+        <div class="port-header">
+          <div>
+            <label>Port Monitor</label>
+            <div class="port-title">
+              <span class="port-dot" id="portDot"></span>
+              <strong id="portName">Checking</strong>
+              <span id="portState">unknown</span>
+            </div>
+          </div>
+          <div class="port-actions">
+            <button id="refreshPortBtn">Refresh Port</button>
+            <button id="reconnectPortBtn">Reconnect Port</button>
+            <button id="portPingBtn">Ping Port</button>
+          </div>
+        </div>
+        <div class="port-grid">
+          <div>
+            <span>Requested</span>
+            <strong id="portRequested">Checking</strong>
+          </div>
+          <div>
+            <span>Serial Bridge</span>
+            <strong id="portBridge">Checking</strong>
+          </div>
+          <div>
+            <span>Continuous Gaze</span>
+            <strong id="portGaze">Checking</strong>
+          </div>
+          <div>
+            <span>Last Refresh</span>
+            <strong id="portUpdated">Checking</strong>
+          </div>
+        </div>
+        <p id="portMessage">Reading local backend status.</p>
+      </section>
+
+      <section class="panel face-panel">
+        <div class="face-stage">
+          <div class="robot-head emotion-neutral gaze-center expression-neutral" id="robotHead" aria-label="Robot expression preview">
+            <div class="brow brow-left"></div>
+            <div class="brow brow-right"></div>
+            <div class="eye eye-left">
+              <div class="pupil"></div>
+            </div>
+            <div class="eye eye-right">
+              <div class="pupil"></div>
+            </div>
+            <div class="nose-bridge"></div>
+            <div class="mouth">
+              <div class="mouth-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="face-readout">
+          <span>emotion <strong id="faceEmotion">neutral</strong></span>
+          <span>gaze <strong id="faceGaze">center</strong></span>
+          <span>expression <strong id="faceExpression">neutral</strong></span>
+          <span>servo plan <strong id="servoPlan">idle</strong></span>
+        </div>
+      </section>
+
+      <section class="panel camera-panel">
+        <div class="camera-view">
+          <video id="trackingVideo" playsinline muted></video>
+          <canvas id="trackingCanvas" width="320" height="240"></canvas>
+          <div class="tracking-dot" id="trackingDot"></div>
+        </div>
+        <div class="camera-controls">
+          <label>Camera eye tracking</label>
+          <div class="tracking-grid">
+            <select id="trackingMode">
+              <option value="face">Face position</option>
+              <option value="iris">Iris gaze</option>
+            </select>
+            <label class="check-row"><input id="invertEyeX" type="checkbox" />Invert X</label>
+            <label class="check-row"><input id="invertEyeY" type="checkbox" />Invert Y</label>
+          </div>
+          <p id="trackingReadout">Camera off. Start it, allow permission, then move your head or eyes slowly.</p>
+        </div>
+      </section>
+
+      <section class="panel voice-panel">
+        <label>Language / voice mode</label>
+        <div class="voice-row">
+          <button class="voice-mode active" data-voice-mode="zh_boss">中文裂变机械</button>
+          <button class="voice-mode" data-voice-mode="en_classic">English classic</button>
+        </div>
+      </section>
+
+      <section class="panel error-panel" id="errorPanel">
+        <div id="errorText">No runtime errors.</div>
+      </section>
+
+      <section class="panel demo-notes">
+        <h2>Demo Checklist</h2>
+        <ul>
+          <li>Use Edge or Chrome and allow microphone permission when prompted.</li>
+          <li>Camera tracking runs in this browser first; Arduino only receives eye percentages.</li>
+          <li>Speaker-only mode is safe before servos are wired; serial should read <strong>off</strong>.</li>
+          <li>Chinese mode slices the voice into harsh mechanical fragments before playback.</li>
+          <li>DeepSeek is optional. Without a key, the built-in Ji Kang persona remains active.</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <label>DeepSeek runtime config</label>
+        <div class="config-grid">
+          <input id="deepseekKey" type="password" placeholder="DeepSeek API key, kept in memory only" />
+          <input id="deepseekModel" value="deepseek-v4-flash" />
+          <input id="deepseekBaseUrl" value="https://api.deepseek.com" />
+          <button id="applyConfigBtn">Apply</button>
+          <button id="testDeepseekBtn">Test LLM</button>
+          <button id="clearConfigBtn">Clear Key</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <label>ElevenLabs voice runtime config</label>
+        <div class="config-grid voice-config-grid">
+          <input id="elevenlabsKey" type="password" placeholder="ElevenLabs API key, kept in memory only" />
+          <input id="elevenlabsVoiceId" value="pNInz6obpgDQGcFmaJgB" />
+          <input id="elevenlabsModelId" value="eleven_multilingual_v2" />
+          <button id="applyVoiceConfigBtn">Apply Voice</button>
+          <button id="clearVoiceConfigBtn">Clear Voice</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <label for="textInput">Text fallback</label>
+        <div class="input-row">
+          <input id="textInput" placeholder="说中文，例如：古琴到底是什么？" />
+          <button id="sendBtn">Send</button>
+        </div>
+      </section>
+
+      <section class="panel prompt-drills">
+        <label>Persona drills</label>
+        <div class="quick">
+          <button data-prompt="你是谁？">你是谁？</button>
+          <button data-prompt="古琴到底是什么？">古琴是什么？</button>
+          <button data-prompt="你为什么说英文？">为什么英文？</button>
+          <button data-prompt="广陵散和你有什么关系？">广陵散</button>
+          <button data-prompt="这个秘密能不能直接告诉我？">秘密</button>
+        </div>
+      </section>
+
+      <section class="panel transcript">
+        <h2>Conversation</h2>
+        <div id="messages"></div>
+      </section>
+
+      <section class="panel servo-diagnostics">
+        <label>Servo diagnostics</label>
+        <div class="quick">
+          <button data-diag="pca_status">PCA Status</button>
+          <button data-diag="i2c_scan">I2C Scan</button>
+          <button data-channel="0">Test Ch0 Jaw L</button>
+          <button data-channel="1">Test Ch1 Jaw R</button>
+          <button data-channel="6">Test Ch6 Eye LR</button>
+          <button data-channel="7">Test Ch7 Eye UD</button>
+          <button data-channel="8">Test Ch8 Lid A</button>
+          <button data-channel="9">Test Ch9 Lid B</button>
+          <button data-channel="10">Test Ch10 Brow A</button>
+          <button data-channel="11">Test Ch11 Brow B</button>
+        </div>
+        <pre id="servoDiagLog">No diagnostic run yet.</pre>
+      </section>
+
+      <section class="panel quick">
+        <button data-servo="home">Home</button>
+        <button data-servo="look_left">Look Left</button>
+        <button data-servo="look_right">Look Right</button>
+        <button data-servo="eyes_close">Blink Close</button>
+        <button data-servo="eyes_open">Eyes Open</button>
+        <button data-servo="blink">Blink</button>
+        <button data-servo="brow_up">Brow Up</button>
+        <button data-servo="brow_home">Brow Home</button>
+        <button data-servo="jaw_close">Jaw Close</button>
+        <button data-servo="confused">Confused</button>
+        <button data-servo="guqin">Guqin</button>
+        <button data-servo="led_emotion guqin">LED Guqin</button>
+        <button data-servo="led_emotion warning">LED Warning</button>
+        <button data-servo="led_speech 85">LED Pulse</button>
+        <button data-servo="led_test">LED Test</button>
+        <button data-servo="led_off">LED Off</button>
+        <button data-servo="release">Release</button>
+      </section>
+    </main>
+    <script src="/vendor/face_mesh.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

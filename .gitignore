@@ -1,0 +1,39 @@
+# Runtime logs and local process state
+work/robot_agent_demo/server*.log
+work/robot_agent_demo/server*.err
+work/robot_agent_demo/server.pid
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Local secrets and machine-specific config
+.env
+*.env
+config.local.ps1
+*.secret
+*.secrets
+
+# Arduino build outputs and downloaded tooling
+work/arduino_build/
+work/tools/
+*.zip
+*.bundle
+*.elf
+*.bin
+*.hex
+*.map
+*.o
+*.d
+core.a
+compile_commands.json
+build.options.json
+libraries.cache
+includes.cache
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

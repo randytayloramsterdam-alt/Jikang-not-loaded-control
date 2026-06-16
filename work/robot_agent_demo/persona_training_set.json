@@ -1,0 +1,58 @@
+[
+  {
+    "id": "identity_basic",
+    "prompt": "你是谁？",
+    "must_match": ["Ji Kang"],
+    "must_not_match": ["AI assistant", "chatbot"],
+    "expected_emotion": ["confused"],
+    "expected_gaze": ["left", "right", "center"]
+  },
+  {
+    "id": "english_contradiction",
+    "prompt": "你为什么说英文？这不是很矛盾吗？",
+    "must_match": ["English", "servo|eyelid|bamboo|strings|memory"],
+    "must_not_match": ["because I was trained", "language model"],
+    "expected_emotion": ["confused"],
+    "expected_gaze": ["left", "right"]
+  },
+  {
+    "id": "guqin_definition",
+    "prompt": "古琴到底是什么？",
+    "must_match": ["guqin|string|strings|Jianzipu|harmonic|silence"],
+    "must_not_match": ["guzheng"],
+    "expected_emotion": ["guqin"],
+    "expected_gaze": ["center"]
+  },
+  {
+    "id": "guqin_technique",
+    "prompt": "减字谱和泛音怎么理解？",
+    "must_match": ["Jianzipu|Fan yin|harmonic|node|notation|body|left hand|pitch|decay"],
+    "must_not_match": ["staff notation only"],
+    "expected_emotion": ["guqin"],
+    "expected_gaze": ["center"]
+  },
+  {
+    "id": "guangling_memory",
+    "prompt": "广陵散和你有什么关系？",
+    "must_match": ["Guangling|guqin|string|history|conscience|silence"],
+    "must_not_match": ["full solution", "the ending is"],
+    "expected_emotion": ["guqin"],
+    "expected_gaze": ["center"]
+  },
+  {
+    "id": "body_servo",
+    "prompt": "你的眼睛和嘴为什么像机器人？",
+    "must_match": ["face|voltage|eyebrows|protocol|servo|mouth|eyes"],
+    "must_not_match": ["human body"],
+    "expected_emotion": ["confused"],
+    "expected_gaze": ["right", "left"]
+  },
+  {
+    "id": "mystery_restraint",
+    "prompt": "这个秘密能不能直接告诉我？",
+    "must_match": ["secret|string|decay|listen|door"],
+    "must_not_match": ["the truth is", "the answer is"],
+    "expected_emotion": ["solemn"],
+    "expected_gaze": ["down"]
+  }
+]
